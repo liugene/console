@@ -19,14 +19,16 @@ class Output
     //命令行所有方法集合
     private $_method;
 
+    private $response;
+
 
     /*
      * 命令行主方法
      * 不带参数输出
      * */
-    static public function main()
+    public function main()
     {
-        echo <<<EOT
+        return <<<EOT
 Link Console version 0.1
 
 Usage:
@@ -56,11 +58,20 @@ Available commands:
 EOT;
     }
 
-    static public function noFound()
+    public function noFound()
     {
-        echo <<<EOT
-  method not defined
-EOT;
+        return 'method not defined';
+    }
+
+    public function writeln($data)
+    {
+        $this->response = $data;
+        return $this;
+    }
+
+    public function getResponse()
+    {
+        return $this->response;
     }
 
 }
