@@ -34,9 +34,9 @@ class Console implements RunInterface
      */
     private $_output;
 
-    public function __construct(Output $output)
+    public function __construct()
     {
-        $this->_output = $output;
+        $this->_output = Application::get('linkphp\console\command\Output');
     }
 
     public function set(Console $console)
@@ -46,13 +46,23 @@ class Console implements RunInterface
 
     public function init()
     {
-        if(Application::input('server.argc') == 1){
-            $this->return_data = $this->_output->main();
-        } else {
-            $this->return_data = $this->_output->noFound();
+        $argc = Application::input('server.argc');
+        switch ($argc) {
+            case 0:
+                $this->return_data = $this->_output->noFound();
+                break;
+            case 1:
+                $this->return_data = $this->_output->main();
+                break;
+            case 2:
+                $argv = Application::input('server.argv');
+                $this->execute($argv[1]);
+                break;
+            case 3:
+                $argv = Application::input('server.argv');
+                $this->execute([$argv[1],$argv[2]]);
+                break;
         }
-        $argv = Application::input('server.argv');
-        $this->execute($argv[1]);
     }
 
     public function import($command)
@@ -66,16 +76,25 @@ class Console implements RunInterface
 
     public function configure($value,$key)
     {
-        $command = new $value();
+        $command = Application::get($value);
         $command->configure();
         $this->setCommand($command->getAlias(),$command);
     }
 
     public function execute($alias)
     {
+        if(is_array($alias)){
+            if(isset($this->command[$alias[0]])){
+                $this->command[$alias[0]]->commandHandle($alias[1]);
+                $this->return_data = $this->_output->getResponse();
+                return;
+            }
+            $this->return_data = $this->_output->noFound();
+            return;
+        }
         if(isset($this->command[$alias])){
             $this->command[$alias]->execute();
-            $this->return_data = Application::get('linkphp\console\command\Output')->getResponse();
+            $this->return_data = $this->_output->getResponse();
             return;
         }
         $this->return_data = $this->_output->noFound();

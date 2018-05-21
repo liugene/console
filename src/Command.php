@@ -2,8 +2,6 @@
 
 namespace linkphp\console;
 
-use linkphp\console\command\Output;
-
 class Command
 {
 
