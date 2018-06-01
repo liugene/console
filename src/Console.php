@@ -14,7 +14,7 @@
 
 namespace linkphp\console;
 use linkphp\Application;
-use linkphp\boot\Exception;
+use linkphp\Exception;
 use linkphp\interfaces\RunInterface;
 
 class Console implements RunInterface
@@ -39,36 +39,41 @@ class Console implements RunInterface
 
     private $daemon_config = [];
 
-    public function __construct()
+    /**
+     * Application对象
+     * @var Application
+     */
+    private $_app;
+
+    public function __construct(Output $output,Application $application)
     {
-        $this->_output = Application::get('linkphp\console\Output');
+        $this->_output = $output;
+        $this->_app = $application;
     }
 
-    public function set(Console $console)
+    public function app()
     {
-        return $this;
+        return $this->_app;
     }
 
     public function init()
     {
-        $argc = Application::input('server.argc');
+        $argc = $this->app()->input('server.argc');
+        $this->argv = $this->app()->input('server.argv');
         switch ($argc) {
             case 0:
-                $this->return_data = $this->_output->noFound();
+                $this->return_data = $this->output()->noFound();
                 break;
             case 1:
-                $this->return_data = $this->_output->main();
+                $this->return_data = $this->output()->main();
                 break;
             case 2:
-                $argv = Application::input('server.argv');
-                $this->execute($argv[1]);
+                $this->execute($this->argv[1]);
                 break;
             case 3:
-                $argv = Application::input('server.argv');
-                $this->execute([$argv[1],$argv[2]]);
+                $this->execute([$this->argv[1],$this->argv[2]]);
                 break;
             case 4:
-                $this->argv = Application::input('server.argv');
                 $this->execute([$this->argv[1],$this->argv[2]]);
                 break;
         }
@@ -85,7 +90,7 @@ class Console implements RunInterface
 
     public function configure($value,$key)
     {
-        $command = Application::get($value);
+        $command = $this->app()->get($value);
         $command->configure();
         $this->setCommand($command->getAlias(),$command);
     }
@@ -93,8 +98,11 @@ class Console implements RunInterface
     public function execute($alias)
     {
         if($this->daemon){
-            Application::get('linkphp\\console\\Daemon')
-                ->start($this);
+            $this->setReturnDate(
+                $this->app()->get(
+                    $this->daemon_config['daemon']
+                )->command($this)
+            );
         } else {
             if(is_array($alias)){
                 if(isset($this->command[$alias[0]])){
@@ -117,17 +125,20 @@ class Console implements RunInterface
     public function setCommand($tag,$command)
     {
         if(isset($this->command[$tag])){
-            throw new Exception('命名名已经存在');
+            throw new Exception('命名已经存在');
         }
         $this->command[$tag] = $command;
     }
 
-    public function getCommand($command)
+    public function getCommand($command = null)
     {
-        if(isset($this->command[$command])){
-            return $this->command[$command];
+        if(isset($command)) {
+            if(isset($this->command[$command])){
+                return $this->command[$command];
+            }
+            return false;
         }
-        return false;
+        return $this->command;
     }
 
     public function getArgv($argv)

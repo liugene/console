@@ -37,4 +37,6 @@ class Command
 
     public function execute(){}
 
+    public function commandHandle(){}
+
 }
