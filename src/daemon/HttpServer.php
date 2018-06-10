@@ -4,15 +4,10 @@ namespace linkphp\console\daemon;
 
 use linkphp\console\Daemon;
 use linkphp\console\Console;
-use linkphp\Application;
+use framework\Application;
 
 class HttpServer extends Daemon
 {
-
-    public function command(Console $console)
-    {
-        return call_user_func([$this,$console->getArgv(1)]);
-    }
 
     public function start()
     {
@@ -28,6 +23,10 @@ class HttpServer extends Daemon
                 $this->_process
             )->setting(
                 $this->setting()
+            )->setEnableStaticHandler(
+                $this->enableStaticHandle()
+            )->setDocumentRoot(
+                $this->documentRoot()
             )->start();
     }
 

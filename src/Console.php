@@ -13,9 +13,9 @@
 // +----------------------------------------------------------------------
 
 namespace linkphp\console;
-use linkphp\Application;
-use linkphp\Exception;
-use linkphp\interfaces\RunInterface;
+use framework\Application;
+use framework\Exception;
+use framework\interfaces\RunInterface;
 
 class Console implements RunInterface
 {

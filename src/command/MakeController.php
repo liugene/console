@@ -2,7 +2,7 @@
 
 namespace linkphp\console\command;
 
-use linkphp\Application;
+use framework\Application;
 use linkphp\console\Command;
 
 class MakeController extends Command

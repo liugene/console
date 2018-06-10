@@ -2,13 +2,13 @@
 
 namespace linkphp\console;
 
-use linkphp\Exception;
+use framework\Exception;
 use linkphp\process\drives\Swoole;
 use linkphp\process\Process;
-use linkphp\Application;
+use framework\Application;
 use linkphp\swoole\HttpServer;
 
-class Daemon
+abstract class Daemon
 {
 
     /**
@@ -80,6 +80,23 @@ class Daemon
         return $this->config['server']['setting'];
     }
 
-    public function command(Console $console){}
+    public function enableStaticHandle()
+    {
+        return $this->config['enable_static_handler'];
+    }
+
+    public function documentRoot()
+    {
+        return $this->config['document_root'];
+    }
+
+    public function command(Console $console)
+    {
+        return call_user_func([$this,$console->getArgv(1)]);
+    }
+
+    abstract public function start();
+
+    abstract public function stop();
 
 }
