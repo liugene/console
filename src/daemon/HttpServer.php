@@ -3,8 +3,6 @@
 namespace linkphp\console\daemon;
 
 use linkphp\console\Daemon;
-use linkphp\console\Console;
-use framework\Application;
 
 class HttpServer extends Daemon
 {

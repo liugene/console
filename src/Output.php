@@ -13,13 +13,35 @@ namespace linkphp\console;
 // |               命令行输出类
 // +----------------------------------------------------------------------
 
+use linkphp\console\style\Style;
+
 class Output
 {
+
+    /**
+     * 间隙字符
+     */
+    const GAP_CHAR = '  ';
+    /**
+     * 左边字符
+     */
+    const LEFT_CHAR = '  ';
 
     //命令行所有方法集合
     private $_method;
 
-    private $response;
+    private $message;
+
+    /**
+     * 样式Style对象
+     * @var Style
+     */
+    private $_style;
+
+    public function __construct(Style $style)
+    {
+        $this->_style = $style;
+    }
 
 
     /*
@@ -28,39 +50,122 @@ class Output
      * */
     public function main()
     {
-        return "Link Console version 0.1 \r\n" .
-               "Usage: \n" .
-               "command [options] [arguments] \n" .
-               "Options: \n".
-                 "-h, --help            Display this help message \n".
-                 "-V, --version         Display this console version \n".
-                 "-q, --quiet           Do not output any message \n".
-                 "--ansi                Force ANSI output \n".
-                 "--no-ansi             Disable ANSI output \n".
-               "Available commands: \n".
-                 "build              Build Application Dirs \n".
-                 "clear              Clear runtime file \n".
-                 "help               Displays help for a command \n".
-                 "list               Lists commands \n".
-                 "make \n".
-                   "make:controller    Create a new resource controller class \n".
-                   "make:model         Create a new model class \n";
+        $logo = "
+ _        _              _                  
+| |      | |   _   ___  | |      ___
+| |  ___ | | / / /  _  \| |_   /  _  \
+| | | \ \| |/ /  | |_| ||  _ \ | |_| |
+| |_| |\ V |\ \  | .___/| | | || .___/
+|_____| \ _' \_\ | |    | | | || | 
+";
+        $this->colored(' ' . \ltrim($logo));
     }
 
     public function noFound()
     {
-        return 'method not defined';
+        $this->writeln('method not defined');
     }
 
-    public function writeln($data)
+    /**
+     * 输出一行数据
+     *
+     * @param string|array $messages 信息
+     * @param bool   $newline  是否换行
+     * @param bool   $quit     是否退出
+     * @return $this
+     */
+    public function writeln($messages = '', $newline = true, $quit = false)
     {
-        $this->response = $data;
+        if (is_array($messages)) {
+            $messages = implode($newline ? PHP_EOL : '', $messages);
+        }
+        // 文字里面颜色标签翻译
+        $messages = $this->_style->translate((string)$messages);
+        // 输出文字
+        echo $messages;
+        if ($newline) {
+            echo "\n";
+        }
+        // 是否退出
+        if ($quit) {
+            exit;
+        }
+        $this->message = $messages;
         return $this;
     }
 
     public function getResponse()
     {
-        return $this->response;
+        return $this->message;
+    }
+
+    /**
+     * @param string $text
+     * @param string $tag
+     */
+    public function colored(string $text, string $tag = 'info')
+    {
+        $this->writeln(sprintf('<%s>%s</%s>', $tag, $text, $tag));
+    }
+    /**
+     * 输出一个列表
+     *
+     * @param array       $list       列表数据
+     * @param string      $titleStyle 标题样式
+     * @param string      $cmdStyle   命令样式
+     * @param string|null $descStyle  描述样式
+     */
+    public function writeList(array $list, $titleStyle = 'comment', string $cmdStyle = 'info', string $descStyle = null)
+    {
+        foreach ($list as $title => $items) {
+            // 标题
+            $title = "<$titleStyle>$title</$titleStyle>";
+            $this->writeln($title);
+            // 输出块内容
+            $this->writeItems((array)$items, $cmdStyle);
+            $this->writeln('');
+        }
+    }
+    /**
+     * 显示命令列表一块数据
+     *
+     * @param array  $items    数据
+     * @param string $cmdStyle 命令样式
+     */
+    private function writeItems(array $items, string $cmdStyle)
+    {
+        foreach ($items as $cmd => $desc) {
+            // 没有命令，只是一行数据
+            if (\is_int($cmd)) {
+                $message = self::LEFT_CHAR . $desc;
+                $this->writeln($message);
+                continue;
+            }
+            // 命令和描述
+            $maxLength = $this->getCmdMaxLength(array_keys($items));
+            $cmd = \str_pad($cmd, $maxLength, ' ');
+            $cmd = "<$cmdStyle>$cmd</$cmdStyle>";
+            $message = self::LEFT_CHAR . $cmd . self::GAP_CHAR . $desc;
+            $this->writeln($message);
+        }
+    }
+    /**
+     * 所有命令最大宽度
+     *
+     * @param array $commands 所有命令
+     * @return int
+     */
+    private function getCmdMaxLength(array $commands): int
+    {
+        $max = 0;
+        foreach ($commands as $cmd) {
+            $length = \strlen($cmd);
+            if ($length > $max) {
+                $max = $length;
+                continue;
+            }
+        }
+        return $max;
     }
 
 }

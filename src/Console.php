@@ -13,6 +13,7 @@
 // +----------------------------------------------------------------------
 
 namespace linkphp\console;
+
 use framework\Application;
 use framework\Exception;
 use framework\interfaces\RunInterface;
@@ -33,6 +34,12 @@ class Console implements RunInterface
      */
     private $_output;
 
+    /**
+     * Input对象
+     * @var Input
+     */
+    private $_input;
+
     private $argv;
 
     private $daemon = false;
@@ -45,8 +52,9 @@ class Console implements RunInterface
      */
     private $_app;
 
-    public function __construct(Output $output,Application $application)
+    public function __construct(Input $input, Output $output,Application $application)
     {
+        $this->_input = $input;
         $this->_output = $output;
         $this->_app = $application;
     }
@@ -110,7 +118,7 @@ class Console implements RunInterface
                     $this->return_data = $this->_output->getResponse();
                     return;
                 }
-                $this->return_data = $this->_output->noFound();
+                $this->_output->noFound();
                 return;
             }
             if(isset($this->command[$alias])){
@@ -118,7 +126,7 @@ class Console implements RunInterface
                 $this->return_data = $this->_output->getResponse();
                 return;
             }
-            $this->return_data = $this->_output->noFound();
+            $this->_output->noFound();
         }
     }
 
