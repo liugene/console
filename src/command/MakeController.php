@@ -20,8 +20,8 @@ class MakeController extends Command
 
     public function make()
     {
-        $content = "<?php\nnamespace app\\controller\\main;\n\nclass Make\n{\n\n}";
-        $dir = APPLICATION_PATH . 'controller/main/';
+        $content = "<?php\nnamespace app\\http\\controller;\n\nclass Make\n{\n\n}";
+        $dir = APPLICATION_PATH . 'http/controller/';
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }

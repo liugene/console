@@ -2,11 +2,10 @@
 
 namespace linkphp\console;
 
-use framework\Exception;
 use linkphp\process\drives\Swoole;
 use linkphp\process\Process;
 use framework\Application;
-use linkphp\swoole\HttpServer;
+use linkphp\swoole\Server;
 
 abstract class Daemon
 {
@@ -38,7 +37,7 @@ abstract class Daemon
     }
 
     /**
-     * @return HttpServer
+     * @return Server
      */
     public function getServer()
     {
@@ -47,47 +46,47 @@ abstract class Daemon
 
     public function class()
     {
-        return $this->config['server']['class'];
+        return isset($this->config['server']['class']) ? $this->config['server']['class'] : '';
     }
 
     public function host()
     {
-        return $this->config['server']['host'];
+        return isset($this->config['server']['host']) ? $this->config['server']['host'] : '';
     }
 
     public function port()
     {
-        return $this->config['server']['port'];
+        return isset($this->config['server']['port']) ? $this->config['server']['port'] : '';
     }
 
     public function pidFile()
     {
-        return $this->config['server']['setting']['pid_file'];
+        return isset($this->config['server']['setting']['pid_file']) ? $this->config['server']['setting']['pid_file'] : '';
     }
 
     public function logFile()
     {
-        return $this->config['server']['setting']['log_file'];
+        return isset($this->config['server']['setting']['log_file']) ? $this->config['server']['setting']['log_file'] : '';
     }
 
     public function maxProcessNum()
     {
-        return $this->config['server']['setting']['max_request'];
+        return isset($this->config['server']['setting']['max_request']) ? $this->config['server']['setting']['max_request'] : '';
     }
 
     public function setting()
     {
-        return $this->config['server']['setting'];
+        return isset($this->config['server']['setting']) ? $this->config['server']['setting'] : '';
     }
 
     public function enableStaticHandle()
     {
-        return $this->config['enable_static_handler'];
+        return isset($this->config['enable_static_handler']) ? $this->config['enable_static_handler'] : '';
     }
 
     public function documentRoot()
     {
-        return $this->config['document_root'];
+        return isset($this->config['document_root']) ? $this->config['document_root'] : '';
     }
 
     public function command(Console $console)
