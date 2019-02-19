@@ -35,7 +35,7 @@ class Command
 
     public function configure(){}
 
-    public function execute(){}
+    public function execute(Output $output){}
 
     public function commandHandle(){}
 

@@ -122,7 +122,7 @@ class Console implements RunInterface
                 return;
             }
             if(isset($this->command[$alias])){
-                $this->command[$alias]->execute();
+                $this->command[$alias]->execute($this->_output);
                 $this->return_data = $this->_output->getResponse();
                 return;
             }
